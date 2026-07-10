@@ -51,6 +51,12 @@ jobs:
         run: |
           yes | sdkmanager --licenses || true
 
+      - name: Fix Corrupt Gradle Wrapper
+        run: |
+          echo "=== Fixing Corrupt Gradle Wrapper ==="
+          mkdir -p android/gradle/wrapper
+          curl -Lo android/gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/v8.5/gradle/wrapper/gradle-wrapper.jar
+
       - name: Build Android APK (Debug)
         run: |
           cd android
