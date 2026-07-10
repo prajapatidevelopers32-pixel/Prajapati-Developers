@@ -26,25 +26,41 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      - name: Debug Environment Info
+        run: |
+          echo "=== Node Version ==="
+          node -v
+          echo "=== NPM Version ==="
+          npm -v
+          echo "=== Java Version ==="
+          java -version
+
       - name: Install Dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build Web Application
         run: npm run build
 
       - name: Sync Capacitor Android
-        run: npx cap sync android
+        run: |
+          npx cap sync android
+          echo "=== Check Android Folder Assets ==="
+          ls -la android/app/src/main/assets/public || echo "No assets folder found"
+
+      - name: Accept Android SDK Licenses
+        run: |
+          yes | sdkmanager --licenses || true
 
       - name: Build Android APK (Debug)
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Build Android AAB (Release Bundle)
         run: |
           cd android
-          ./gradlew bundleRelease
+          ./gradlew bundleRelease --no-daemon --stacktrace
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
@@ -57,3 +73,4 @@ jobs:
         with:
           name: ZoyaAI-AAB
           path: android/app/build/outputs/bundle/release/app-release.aab
+
